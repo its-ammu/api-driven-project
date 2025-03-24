@@ -206,7 +206,8 @@ def create_deployment():
     """Create a deployment for the pipeline"""
     energy_pipeline.serve(
         name="energy-analysis-deployment",
-        work_queue_name="default",
+        tags=["energy", "analysis"],
+        description="Global Energy Transition Analysis Pipeline"
     )
 
 if __name__ == "__main__":
