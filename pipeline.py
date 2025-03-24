@@ -78,11 +78,11 @@ def process_data(df):
         df['Fossil fuel energy consumption']
     )
     
-    # Get latest data for each country
-    latest_data = df.groupby('country').last().reset_index()
-    
     # Calculate regional averages
     df['Region'] = df['country'].map(lambda x: get_region(x))
+    
+    # Get latest data for each country, including Region
+    latest_data = df.groupby('country').last().reset_index()
     
     # Calculate regional averages, excluding non-numeric columns
     numeric_cols = df.select_dtypes(include=[np.number]).columns
