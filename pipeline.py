@@ -13,56 +13,46 @@ from dotenv import load_dotenv
 load_dotenv()
 
 @task
-def fetch_energy_data():
-    """Fetch energy consumption and renewable energy data from World Bank API"""
-    # World Bank API endpoints for energy indicators
+def fetch_world_bank_data():
+    """Fetch energy consumption data from World Bank API"""
+    base_url = "http://api.worldbank.org/v2/country/all/indicator"
     indicators = {
-        'EG.USE.PCAP.KG.OE': 'Energy use per capita (kg of oil equivalent)',
-        'EG.FEC.RNEW.ZS': 'Renewable energy consumption (% of total final energy consumption)',
-        'EG.USE.COMM.FO.ZS': 'Fossil fuel energy consumption (% of total)',
-        'EG.USE.ELEC.KH.PC': 'Electric power consumption (kWh per capita)'
+        'EG.USE.PCAP.KG.OE': 'Energy use per capita',
+        'EG.FEC.RNEW.ZS': 'Renewable energy consumption',
+        'EG.USE.COMM.FO.ZS': 'Fossil fuel energy consumption'
     }
     
-    try:
-        # Fetch data for each indicator
-        dfs = []
-        for indicator in indicators.keys():
-            url = f"https://api.worldbank.org/v2/country/all/indicator/{indicator}?format=json&per_page=1000"
-            response = requests.get(url)
-            response.raise_for_status()
-            
-            # Extract data from response
-            data = response.json()[1]
-            
-            # Convert to DataFrame
-            df = pd.DataFrame(data)
-            
-            # Extract relevant columns
-            df = df[['country', 'date', 'value', 'indicator']]
-            
-            # Map indicator code to description
-            df['indicator'] = df['indicator'].map(indicators)
-            
-            # Convert date and value to appropriate types
-            df['date'] = pd.to_datetime(df['date'])
-            df['value'] = pd.to_numeric(df['value'], errors='coerce')
-            
-            dfs.append(df)
+    all_data = []
+    
+    for indicator_id, indicator_name in indicators.items():
+        url = f"{base_url}/{indicator_id}?format=json&per_page=1000"
+        response = requests.get(url)
         
-        # Combine all indicators
-        combined_df = pd.concat(dfs, ignore_index=True)
-        
-        # Pivot the data to have indicators as columns
-        df_pivot = combined_df.pivot(
-            index=['country', 'date'],
-            columns='indicator',
-            values='value'
-        ).reset_index()
-        
-        return df_pivot
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        raise
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and len(data) > 1:
+                for item in data[1]:  # Skip the metadata in data[0]
+                    if item.get('value') is not None:  # Only include non-null values
+                        all_data.append({
+                            'country': item['country']['value'],
+                            'country_code': item['countryiso3code'],
+                            'date': item['date'],
+                            indicator_name: item['value']
+                        })
+        else:
+            print(f"Error fetching {indicator_name}: {response.status_code}")
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(all_data)
+    
+    # Pivot the data to get all indicators in columns
+    df_pivot = df.pivot_table(
+        index=['country', 'country_code', 'date'],
+        values=list(indicators.values()),
+        aggfunc='first'
+    ).reset_index()
+    
+    return df_pivot
 
 @task
 def process_data(df):
@@ -174,7 +164,7 @@ def generate_report(latest_data, transition_file, regional_file):
 def energy_pipeline():
     """Main pipeline flow"""
     # Fetch data
-    raw_data = fetch_energy_data()
+    raw_data = fetch_world_bank_data()
     
     # Process data
     processed_data, latest_data, regional_avg = process_data(raw_data)
