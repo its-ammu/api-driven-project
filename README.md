@@ -1,6 +1,16 @@
-# Simple Data Pipeline with Prefect
+# Global Energy Transition Analysis Pipeline with Prefect
 
-This project demonstrates a simple data pipeline using Prefect. The pipeline generates sample data, processes it by adding derived columns, and saves the results to a CSV file.
+This project implements a data pipeline that analyzes global energy consumption and renewable energy adoption data from the World Bank. The pipeline tracks energy transition progress across countries and regions, providing insights into the shift towards sustainable energy sources.
+
+## Features
+
+- Real-time data fetching from World Bank API
+- Multi-indicator energy analysis
+- Regional trend analysis
+- Interactive visualizations using Plotly
+- Web dashboard using Dash
+- Automated report generation
+- Prefect workflow management
 
 ## Setup
 
@@ -23,11 +33,16 @@ python pipeline.py
 ```
 
 The pipeline will:
-1. Generate sample time series data
-2. Process the data by adding:
-   - 7-day rolling mean
-   - Boolean flag indicating if value is above mean
-3. Save the processed data to a CSV file with timestamp
+1. Fetch the latest energy consumption data from World Bank
+2. Process and analyze energy transition metrics
+3. Generate interactive visualizations
+4. Create a web dashboard
+5. Generate a summary report
+
+Outputs:
+- Interactive visualizations in the `output` directory
+- Summary report in `output/energy_report.txt`
+- Web dashboard available at http://localhost:8050
 
 ## Cloud Deployment
 
@@ -40,6 +55,7 @@ The pipeline will:
    - Go to your GitHub repository settings
    - Navigate to Secrets and Variables > Actions
    - Add a new secret named `PREFECT_API_KEY` with your Prefect Cloud API key
+   - Add a new secret named `PREFECT_WORKSPACE` with your workspace name
 
 ### GitHub Actions
 
@@ -58,13 +74,30 @@ To run the pipeline manually:
 - `pipeline.py`: Main pipeline script containing the Prefect flow and tasks
 - `requirements.txt`: Project dependencies
 - `.github/workflows/pipeline.yml`: GitHub Actions workflow configuration
+- `output/`: Directory containing generated visualizations and reports
 - `README.md`: This file
 
-## Features
+## Data Analysis Features
 
-- Uses Prefect's `@flow` and `@task` decorators for workflow management
-- Demonstrates basic data processing with pandas
-- Includes automatic file naming with timestamps
-- Provides clear logging of pipeline execution
-- Runs in Docker containers via Prefect Cloud
-- Automated execution through GitHub Actions
+1. Energy Consumption Analysis:
+   - Per capita energy use
+   - Electric power consumption
+   - Fossil fuel dependency
+   - Renewable energy adoption
+
+2. Transition Metrics:
+   - Energy transition score
+   - Year-over-year renewable growth
+   - Regional energy patterns
+   - Country-level comparisons
+
+3. Visualizations:
+   - Interactive scatter plots for energy transition progress
+   - Regional trend line charts
+   - Web dashboard with multiple views
+
+4. Reporting:
+   - Key energy statistics
+   - Top performing countries
+   - Regional comparisons
+   - Links to interactive visualizations
