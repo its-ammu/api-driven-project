@@ -11,6 +11,41 @@ This project implements a data pipeline that analyzes global energy consumption 
 - Web dashboard using Dash
 - Automated report generation
 - Prefect workflow management
+- Automatically saves outputs as GitHub Actions artifacts
+
+## Output Artifacts
+
+The pipeline generates three main artifacts that are saved in the `output` directory and uploaded as GitHub Actions artifacts:
+
+1. **Interactive Visualizations**:
+   - `energy_transition.html`: A scatter plot showing the relationship between fossil fuel and renewable energy consumption across countries
+   - `regional_trends.html`: A line chart showing renewable energy adoption trends by region
+
+2. **Analysis Report**:
+   - `energy_report.txt`: A comprehensive report containing:
+     - Total number of countries analyzed
+     - Global average renewable energy share
+     - Top 5 countries by renewable energy share
+     - Top 5 countries by energy transition score
+     - Links to generated visualizations
+
+## Accessing the Artifacts
+
+After the pipeline runs, you can access the artifacts in two ways:
+
+1. **Through GitHub Actions**:
+   - Go to the "Actions" tab in your repository
+   - Select the latest workflow run
+   - Scroll down to the "Artifacts" section
+   - Click on "energy-analysis-output" to download the files
+   - The artifacts are retained for 7 days
+
+2. **Locally**:
+   - The files are also saved in the `output` directory of your repository
+   - You can find them at:
+     - `output/energy_transition.html`
+     - `output/regional_trends.html`
+     - `output/energy_report.txt`
 
 ## Setup
 
