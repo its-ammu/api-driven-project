@@ -58,12 +58,12 @@ def fetch_world_bank_data():
 def process_data(df):
     """Process and clean the energy data"""
     # Calculate year-over-year changes
-    df['Renewable Growth'] = df.groupby('country')['Renewable energy consumption (% of total final energy consumption)'].pct_change()
+    df['Renewable Growth'] = df.groupby('country')['Renewable energy consumption'].pct_change()
     
     # Calculate energy transition score (higher renewable %, lower fossil fuel %)
     df['Energy Transition Score'] = (
-        df['Renewable energy consumption (% of total final energy consumption)'] -
-        df['Fossil fuel energy consumption (% of total)']
+        df['Renewable energy consumption'] -
+        df['Fossil fuel energy consumption']
     )
     
     # Get latest data for each country
@@ -100,15 +100,16 @@ def create_visualizations(df, latest_data, regional_avg):
     # 1. Energy Transition Progress
     fig_transition = px.scatter(
         latest_data,
-        x='Fossil fuel energy consumption (% of total)',
-        y='Renewable energy consumption (% of total final energy consumption)',
-        size='Energy use per capita (kg of oil equivalent)',
+        x='Fossil fuel energy consumption',
+        y='Renewable energy consumption',
+        size='Energy use per capita',
         color='Region',
         hover_data=['country'],
         title='Energy Transition Progress by Country',
         labels={
-            'Fossil fuel energy consumption (% of total)': 'Fossil Fuel Consumption (%)',
-            'Renewable energy consumption (% of total final energy consumption)': 'Renewable Energy (%)'
+            'Fossil fuel energy consumption': 'Fossil Fuel Consumption (%)',
+            'Renewable energy consumption': 'Renewable Energy (%)',
+            'Energy use per capita': 'Energy Use per Capita (kg of oil equivalent)'
         }
     )
     fig_transition.write_html('output/energy_transition.html')
@@ -117,11 +118,11 @@ def create_visualizations(df, latest_data, regional_avg):
     fig_regional = px.line(
         regional_avg,
         x='date',
-        y='Renewable energy consumption (% of total final energy consumption)',
+        y='Renewable energy consumption',
         color='Region',
         title='Regional Renewable Energy Adoption Trends',
         labels={
-            'Renewable energy consumption (% of total final energy consumption)': 'Renewable Energy (%)',
+            'Renewable energy consumption': 'Renewable Energy (%)',
             'date': 'Year'
         }
     )
@@ -139,11 +140,11 @@ def generate_report(latest_data, transition_file, regional_file):
     Key Statistics:
     --------------
     Total Countries Analyzed: {len(latest_data)}
-    Global Average Renewable Energy Share: {latest_data['Renewable energy consumption (% of total final energy consumption)'].mean():.2f}%
+    Global Average Renewable Energy Share: {latest_data['Renewable energy consumption'].mean():.2f}%
     
     Top 5 Countries by Renewable Energy Share:
     ----------------------------------------
-    {latest_data.nlargest(5, 'Renewable energy consumption (% of total final energy consumption)')[['country', 'Renewable energy consumption (% of total final energy consumption)']].to_string()}
+    {latest_data.nlargest(5, 'Renewable energy consumption')[['country', 'Renewable energy consumption']].to_string()}
     
     Top 5 Countries by Energy Transition Score:
     ----------------------------------------
