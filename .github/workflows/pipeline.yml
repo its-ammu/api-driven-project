@@ -32,7 +32,7 @@ jobs:
       run: python pipeline.py
     
     - name: Upload Output Files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: energy-analysis-output
         path: output/
