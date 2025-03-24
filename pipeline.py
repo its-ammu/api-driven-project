@@ -202,16 +202,5 @@ def energy_pipeline():
     print(f"Visualizations saved in the 'output' directory")
     print("Dashboard available at http://localhost:8050")
 
-def create_deployment():
-    """Create a deployment for the pipeline"""
-    energy_pipeline.serve(
-        name="energy-analysis-deployment",
-        tags=["energy", "analysis"],
-        description="Global Energy Transition Analysis Pipeline"
-    )
-
 if __name__ == "__main__":
-    if os.getenv("PREFECT_DEPLOYMENT"):
-        create_deployment()
-    else:
-        energy_pipeline() 
+    energy_pipeline() 
