@@ -2,7 +2,6 @@ from prefect import flow, task
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from prefect.infrastructure import Process
 import os
 
 @task
@@ -45,15 +44,8 @@ def data_pipeline():
 
 def create_deployment():
     """Create a deployment for the pipeline"""
-    process_infra = Process(
-        working_dir="/opt/prefect",
-        env={"PYTHONPATH": "/opt/prefect"}
-    )
-    
-    # Deploy the flow with process infrastructure
     data_pipeline.serve(
         name="data-pipeline-deployment",
-        infrastructure=process_infra,
         work_queue_name="default",
     )
 
