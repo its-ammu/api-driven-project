@@ -2,7 +2,7 @@ from prefect import flow, task
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from prefect.infrastructure.process import Process
+from prefect.infrastructure import Process
 import os
 
 @task
