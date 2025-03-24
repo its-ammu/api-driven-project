@@ -84,9 +84,6 @@ def process_data(df):
     # Calculate regional averages
     df['Region'] = df['country'].map(lambda x: get_region(x))
     
-    # Ensure date is numeric for calculations
-    df['date'] = pd.to_numeric(df['date'], errors='coerce')
-    
     # Calculate regional averages, excluding non-numeric columns
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     regional_avg = df.groupby(['Region', 'date'])[numeric_cols].mean().reset_index()
