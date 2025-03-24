@@ -32,13 +32,20 @@ def fetch_world_bank_data():
             data = response.json()
             if isinstance(data, list) and len(data) > 1:
                 for item in data[1]:  # Skip the metadata in data[0]
-                    if item.get('value') is not None:  # Only include non-null values
-                        all_data.append({
-                            'country': item['country']['value'],
-                            'country_code': item['countryiso3code'],
-                            'date': item['date'],
-                            indicator_name: item['value']
-                        })
+                    # Skip if value is None or if it's an aggregate region
+                    if (item.get('value') is not None and 
+                        item.get('countryiso3code') is not None and 
+                        len(item.get('countryiso3code', '')) == 3):  # Only keep actual countries
+                        try:
+                            value = float(item['value'])
+                            all_data.append({
+                                'country': item['country']['value'],
+                                'country_code': item['countryiso3code'],
+                                'date': item['date'],
+                                indicator_name: value
+                            })
+                        except (ValueError, TypeError):
+                            continue
         else:
             print(f"Error fetching {indicator_name}: {response.status_code}")
     
