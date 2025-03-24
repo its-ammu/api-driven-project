@@ -29,4 +29,6 @@ jobs:
         prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace ${{ secrets.PREFECT_WORKSPACE }}
     
     - name: Run Pipeline
+      env:
+        PREFECT_DEPLOYMENT: "true"
       run: python pipeline.py 

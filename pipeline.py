@@ -33,23 +33,30 @@ def fetch_energy_data():
             
             # Extract data from response
             data = response.json()[1]
+            
+            # Convert to DataFrame
             df = pd.DataFrame(data)
-            df['indicator'] = indicators[indicator]
+            
+            # Extract relevant columns
+            df = df[['country', 'date', 'value', 'indicator']]
+            
+            # Map indicator code to description
+            df['indicator'] = df['indicator'].map(indicators)
+            
+            # Convert date and value to appropriate types
+            df['date'] = pd.to_datetime(df['date'])
+            df['value'] = pd.to_numeric(df['value'], errors='coerce')
+            
             dfs.append(df)
         
         # Combine all indicators
         combined_df = pd.concat(dfs, ignore_index=True)
         
-        # Clean and process the data
-        combined_df['date'] = pd.to_datetime(combined_df['date'])
-        combined_df['value'] = pd.to_numeric(combined_df['value'], errors='coerce')
-        
         # Pivot the data to have indicators as columns
-        df_pivot = combined_df.pivot_table(
+        df_pivot = combined_df.pivot(
             index=['country', 'date'],
             columns='indicator',
-            values='value',
-            aggfunc='first'
+            values='value'
         ).reset_index()
         
         return df_pivot
