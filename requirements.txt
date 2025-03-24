@@ -1,7 +1,7 @@
-prefect>=2.14.0
-pandas>=2.0.0
-numpy>=1.24.0
-requests>=2.31.0
-plotly>=5.18.0
-dash>=2.14.0
-python-dotenv>=1.0.0 
+prefect==2.13.8
+pandas==2.0.3
+numpy==1.24.3
+requests==2.31.0
+plotly==5.18.0
+dash==2.14.1
+python-dotenv==1.0.0 
