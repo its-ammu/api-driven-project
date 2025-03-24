@@ -64,12 +64,12 @@ def fetch_world_bank_data():
 @task
 def process_data(df):
     """Process and clean the energy data"""
+    # Ensure numeric columns are float type
+    numeric_columns = ['Energy use per capita', 'Renewable energy consumption', 'Fossil fuel energy consumption']
+    for col in numeric_columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    
     # Calculate year-over-year changes
-    # write df to csv in the output directory
-    # create output directory if it doesn't exist
-    os.makedirs('output', exist_ok=True)
-    df.to_csv('output/energy_data.csv', index=False)
-    exit()
     df['Renewable Growth'] = df.groupby('country')['Renewable energy consumption'].pct_change()
     
     # Calculate energy transition score (higher renewable %, lower fossil fuel %)
@@ -83,7 +83,13 @@ def process_data(df):
     
     # Calculate regional averages
     df['Region'] = df['country'].map(lambda x: get_region(x))
-    regional_avg = df.groupby(['Region', 'date']).mean().reset_index()
+    
+    # Ensure date is numeric for calculations
+    df['date'] = pd.to_numeric(df['date'], errors='coerce')
+    
+    # Calculate regional averages, excluding non-numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    regional_avg = df.groupby(['Region', 'date'])[numeric_cols].mean().reset_index()
     
     return df, latest_data, regional_avg
 
