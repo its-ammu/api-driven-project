@@ -2,7 +2,6 @@ from prefect import flow, task
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from prefect.deployments import Deployment
 from prefect.infrastructure.docker import DockerContainer
 import os
 
@@ -52,13 +51,12 @@ def create_deployment():
         auto_remove=True,
     )
     
-    deployment = Deployment.build_from_flow(
-        flow=data_pipeline,
+    # Deploy the flow with Docker infrastructure
+    data_pipeline.serve(
         name="data-pipeline-deployment",
         infrastructure=docker_container,
         work_queue_name="default",
     )
-    deployment.apply()
 
 if __name__ == "__main__":
     if os.getenv("PREFECT_DEPLOYMENT"):
