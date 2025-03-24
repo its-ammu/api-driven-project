@@ -66,6 +66,8 @@ def process_data(df):
     """Process and clean the energy data"""
     # Calculate year-over-year changes
     # write df to csv in the output directory
+    # create output directory if it doesn't exist
+    os.makedirs('output', exist_ok=True)
     df.to_csv('output/energy_data.csv', index=False)
     exit()
     df['Renewable Growth'] = df.groupby('country')['Renewable energy consumption'].pct_change()
