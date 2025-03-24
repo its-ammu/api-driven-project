@@ -65,6 +65,9 @@ def fetch_world_bank_data():
 def process_data(df):
     """Process and clean the energy data"""
     # Calculate year-over-year changes
+    # write df to csv in the output directory
+    df.to_csv('output/energy_data.csv', index=False)
+    exit()
     df['Renewable Growth'] = df.groupby('country')['Renewable energy consumption'].pct_change()
     
     # Calculate energy transition score (higher renewable %, lower fossil fuel %)
