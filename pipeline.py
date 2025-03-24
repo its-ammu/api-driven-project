@@ -137,19 +137,6 @@ def create_visualizations(df, latest_data, regional_avg):
     )
     fig_regional.write_html('output/regional_trends.html')
     
-    # 3. Create a dashboard
-    app = Dash(__name__)
-    
-    app.layout = html.Div([
-        html.H1('Global Energy Transition Dashboard'),
-        html.Div([
-            dcc.Graph(figure=fig_transition),
-            dcc.Graph(figure=fig_regional)
-        ])
-    ])
-    
-    app.run_server(debug=False, port=8050)
-    
     return 'output/energy_transition.html', 'output/regional_trends.html'
 
 @task
@@ -200,7 +187,6 @@ def energy_pipeline():
     
     print(f"Pipeline completed successfully. Report saved to: {report_file}")
     print(f"Visualizations saved in the 'output' directory")
-    print("Dashboard available at http://localhost:8050")
 
 if __name__ == "__main__":
     energy_pipeline() 

@@ -29,4 +29,11 @@ jobs:
         prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace ${{ secrets.PREFECT_WORKSPACE }}
     
     - name: Run Pipeline
-      run: python pipeline.py 
+      run: python pipeline.py
+    
+    - name: Upload Output Files
+      uses: actions/upload-artifact@v3
+      with:
+        name: energy-analysis-output
+        path: output/
+        retention-days: 7 
