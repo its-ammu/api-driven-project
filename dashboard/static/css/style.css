@@ -1,0 +1,56 @@
+/* Custom styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pipeline-card {
+    cursor: pointer;
+}
+
+.pipeline-card:hover {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer {
+    margin-top: auto;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: #2c3e50;
+}
+
+.card-text {
+    color: #34495e;
+}
+
+.badge {
+    margin:auto;
+}
+
+#status-container {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} 

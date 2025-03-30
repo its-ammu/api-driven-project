@@ -7,11 +7,64 @@ This project implements a data pipeline that analyzes global energy consumption 
 - Real-time data fetching from World Bank API
 - Multi-indicator energy analysis
 - Regional trend analysis
-- Interactive visualizations using Plotly
-- Web dashboard using Dash
 - Automated report generation
 - Prefect workflow management
 - Automatically saves outputs as GitHub Actions artifacts
+- Flask-based monitoring dashboard for pipeline status
+
+## Dashboard App
+
+The project includes a Flask-based dashboard application that provides real-time monitoring of pipeline runs and their status. The dashboard offers:
+
+1. **Pipeline Overview**:
+   - List of all available pipelines
+   - Quick status indicators
+   - Creation and last update timestamps
+   - Pipeline tags and labels
+
+2. **Pipeline Details**:
+   - Comprehensive run history
+   - Success rate statistics
+   - Average run time metrics
+   - Error analysis and common failure patterns
+   - Detailed status distribution
+
+3. **Visual Features**:
+   - Modern, responsive UI
+   - Interactive cards with hover effects
+   - Color-coded status indicators
+   - Real-time status updates
+   - Detailed run history table
+
+### Dashboard Screenshots
+
+#### Homepage
+![Dashboard Homepage](assets/dashboard-home.png)
+
+#### Pipeline Details
+![Pipeline Details](assets/flow-details.png)
+
+#### Run History
+![Flow Run History](assets/flow-run-history.png)
+
+### Running the Dashboard
+
+1. Navigate to the dashboard directory:
+```bash
+cd dashboard
+```
+
+2. Install dashboard dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Start the Flask application:
+```bash
+python app.py
+```
+
+4. Access the dashboard at http://localhost:5000
 
 ## Output Artifacts
 
@@ -110,6 +163,11 @@ To run the pipeline manually:
 - `requirements.txt`: Project dependencies
 - `.github/workflows/pipeline.yml`: GitHub Actions workflow configuration
 - `output/`: Directory containing generated visualizations and reports
+- `dashboard/`: Flask-based monitoring dashboard
+  - `app.py`: Main Flask application
+  - `templates/`: HTML templates for the dashboard
+  - `static/`: CSS and JavaScript files
+  - `requirements.txt`: Dashboard-specific dependencies
 - `README.md`: This file
 
 ## Data Analysis Features

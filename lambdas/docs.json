@@ -1,0 +1,63 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Data Pipeline API",
+      "description": "API to interact with data pipelines running in Prefect Cloud"
+    },
+    "host": "es3ozkq7i8.execute-api.us-east-1.amazonaws.com",
+    "basePath": "/dev",
+    "schemes": [
+      "https"
+    ],
+    "paths": {
+      "/data/pipelines": {
+        "get": {
+          "summary": "Get all pipelines",
+          "description": "Get all pipelines running in Prefect Cloud",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Pipelines fetched successfully"
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/data/pipelines/status": {
+        "get": {
+          "summary": "Get the status of a pipeline",
+          "description": "Get the status of a pipeline running in Prefect Cloud",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Pipeline status fetched successfully"
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      }
+    }
+  }
