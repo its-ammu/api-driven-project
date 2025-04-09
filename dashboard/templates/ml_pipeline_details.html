@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pipeline.name }} - ML Pipeline Details{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .stat-card {
+        transition: transform 0.2s;
+        height: 100%;
+        margin-bottom: 1rem;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    .stat-card .card-body {
+        padding: 1.5rem;
+    }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5em 1em;
+    }
+    .status-badge i {
+        margin-right: 0.5rem;
+    }
+    .error-message {
+        color: #dc3545;
+        font-family: monospace;
+        white-space: pre-wrap;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    .back-button {
+        margin-bottom: 1.5rem;
+    }
+    .card {
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        padding: 1rem 1.25rem;
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .card-body {
+        padding: 1.25rem;
+    }
+    .table th {
+        padding: 0.75rem;
+    }
+    .table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+    .section-title {
+        margin-bottom: 1.5rem;
+    }
+    .display-4 {
+        margin-bottom: 0.5rem;
+    }
+    .lead {
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Back Button -->
+    <a href="{{ url_for('home') }}" class="btn btn-outline-primary back-button">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4">
+                <i class="bi bi-diagram-3"></i>
+                {{ pipeline.display_name }}
+            </h1>
+            <p class="lead text-muted">
+                <i class="bi bi-hash"></i> Pipeline ID: {{ pipeline.id }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-play-circle"></i>
+                    <h3>{{ analysis.total_runs }}</h3>
+                    <p class="mb-0">Total Runs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle"></i>
+                    <h3>{{ analysis.success_rate }}%</h3>
+                    <p class="mb-0">Success Rate</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-lightning"></i>
+                    <h3>
+                        {% if analysis.latest_run %}
+                            {{ analysis.latest_run.PipelineExecutionStatus }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h3>
+                    <p class="mb-0">Latest Status</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <h3>{{ analysis.error_types|length }}</h3>
+                    <p class="mb-0">Error Types</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status, count in analysis.status_counts.items() %}
+                            <tr>
+                                <td>
+                                    <span class="badge {% if status == 'Succeeded' %}bg-success{% elif status == 'Failed' %}bg-danger{% else %}bg-warning{% endif %} status-badge">
+                                        <i class="bi {% if status == 'Succeeded' %}bi-check-circle{% elif status == 'Failed' %}bi-x-circle{% else %}bi-exclamation-circle{% endif %}"></i>
+                                        {{ status }}
+                                    </span>
+                                </td>
+                                <td>{{ count }}</td>
+                                <td>{{ (count / analysis.total_runs * 100)|round(1) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Types -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Error Types</h5>
+                </div>
+                <div class="card-body">
+                    {% if analysis.error_types %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Error Type</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for error_type, count in analysis.error_types.items() %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-danger status-badge">
+                                        <i class="bi bi-exclamation-circle-fill"></i>
+                                        {{ error_type }}
+                                    </span>
+                                </td>
+                                <td>{{ count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted mb-0">No errors recorded</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Run History -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Run History</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-hash"></i> Run ID</th>
+                            <th><i class="bi bi-tag"></i> Name</th>
+                            <th><i class="bi bi-lightning"></i> Status</th>
+                            <th><i class="bi bi-calendar-plus"></i> Start Time</th>
+                            <th><i class="bi bi-person"></i> Created By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for run in analysis.runs %}
+                        <tr>
+                            <td><small class="text-muted">{{ run.PipelineExecutionArn.split('/')[-1] }}</small></td>
+                            <td>{{ run.PipelineExecutionDisplayName }}</td>
+                            <td>
+                                <span class="badge {% if run.PipelineExecutionStatus == 'Succeeded' %}bg-success{% elif run.PipelineExecutionStatus == 'Failed' %}bg-danger{% else %}bg-warning{% endif %} status-badge">
+                                    <i class="bi {% if run.PipelineExecutionStatus == 'Succeeded' %}bi-check-circle{% elif run.PipelineExecutionStatus == 'Failed' %}bi-x-circle{% else %}bi-exclamation-circle{% endif %}"></i>
+                                    {{ run.PipelineExecutionStatus }}
+                                </span>
+                            </td>
+                            <td>{{ run.StartTime.split('T')[0] }} {{ run.StartTime.split('T')[1].split('.')[0] }}</td>
+                            <td>
+                                {% if run.PipelineExecutionDetails.CreatedBy %}
+                                    {{ run.PipelineExecutionDetails.CreatedBy.UserProfileName }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

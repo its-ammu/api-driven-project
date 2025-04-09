@@ -14,6 +14,15 @@ def get_pipeline_details(pipeline_id):
     response = requests.get(f'https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipeline/status?id={pipeline_id}')
     return response.json()
 
+def get_ml_pipelines():
+    response = requests.get('https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline')
+    print("ML Pipelines:", response.json())
+    return response.json()
+
+def get_ml_pipeline_details(pipeline_id):
+    response = requests.get(f'https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline/status?pipeline_id={pipeline_id}')
+    return response.json()
+
 def analyze_pipeline_runs(runs):
     # Convert string timestamps to datetime objects
     for run in runs:
@@ -46,12 +55,47 @@ def analyze_pipeline_runs(runs):
         'runs': sorted(runs, key=lambda x: x['created'], reverse=True)
     }
 
-# pipelines : [{\"id\": \"4265d3d9-26cc-42ac-8fb7-b8e786796584\", \"created\": \"2025-03-24T14:47:28.193399Z\", \"updated\": \"2025-03-24T14:47:28.193419Z\", \"name\": \"Global Energy Transition Analysis Pipeline\", \"tags\": [], \"labels\": {}}, {\"id\": \"32e6109b-56eb-4f79-ae9c-a5513e800495\", \"created\": \"2025-03-24T12:55:48.498668Z\", \"updated\": \"2025-03-24T12:55:48.498685Z\", \"name\": \"Simple Data Pipeline\", \"tags\": [], \"labels\": {}}]
+def analyze_ml_pipeline_runs(executions):
+    if not executions or 'PipelineExecutionSummaries' not in executions:
+        return {
+            'total_runs': 0,
+            'status_counts': {},
+            'avg_run_time': 0,
+            'success_rate': 0,
+            'latest_run': None,
+            'error_types': {},
+            'runs': []
+        }
+    
+    runs = executions['PipelineExecutionSummaries']
+    
+    # Calculate statistics
+    total_runs = len(runs)
+    status_counts = Counter(run['PipelineExecutionStatus'] for run in runs)
+    success_rate = (status_counts['Succeeded'] / total_runs * 100) if total_runs > 0 else 0
+    
+    # Get latest run
+    latest_run = max(runs, key=lambda x: x['StartTime']) if runs else None
+    
+    # Get error types
+    error_types = Counter(run['PipelineExecutionStatus'] for run in runs if run['PipelineExecutionStatus'] not in ['Succeeded'])
+    
+    return {
+        'total_runs': total_runs,
+        'status_counts': dict(status_counts),
+        'success_rate': round(success_rate, 2),
+        'latest_run': latest_run,
+        'error_types': dict(error_types),
+        'runs': sorted(runs, key=lambda x: x['StartTime'], reverse=True)
+    }
 
 @app.route('/')
 def home():
-    pipelines = get_pipelines()
-    return render_template('index.html', pipelines=pipelines)
+    data_pipelines = get_pipelines()
+    ml_pipelines = get_ml_pipelines()
+    return render_template('index.html', 
+                         data_pipelines=data_pipelines,
+                         ml_pipelines=ml_pipelines)
 
 @app.route('/pipeline/<pipeline_id>')
 def pipeline_details(pipeline_id):
@@ -70,6 +114,26 @@ def pipeline_details(pipeline_id):
     analysis = analyze_pipeline_runs(runs)
     
     return render_template('pipeline_details.html', 
+                         pipeline=pipeline_info,
+                         analysis=analysis)
+
+@app.route('/ml/pipeline/<pipeline_id>')
+def ml_pipeline_details(pipeline_id):
+    executions = get_ml_pipeline_details(pipeline_id)
+    if not executions or 'PipelineExecutionSummaries' not in executions:
+        return "Pipeline not found", 404
+    
+    # Get pipeline info from the first execution
+    pipeline_info = {
+        'id': executions['PipelineExecutionSummaries'][0]['PipelineExecutionDetails']['PipelineArn'].split('/')[-1],
+        'name': executions['PipelineExecutionSummaries'][0]['PipelineExecutionDetails']['PipelineArn'].split('/')[-1],
+        'display_name': executions['PipelineExecutionSummaries'][0]['PipelineExecutionDisplayName']
+    }
+    
+    # Analyze the executions
+    analysis = analyze_ml_pipeline_runs(executions)
+    
+    return render_template('ml_pipeline_details.html', 
                          pipeline=pipeline_info,
                          analysis=analysis)
 

@@ -12,92 +12,14 @@ This project implements a data pipeline that analyzes global energy consumption 
 - Automatically saves outputs as GitHub Actions artifacts
 - Flask-based monitoring dashboard for pipeline status
 - Custom REST APIs for pipeline monitoring
-
-## Custom APIs
-
-The project includes custom REST APIs built with AWS Lambda to interact with the Prefect Cloud pipelines. These APIs provide real-time access to pipeline information and status.
-
-### API Documentation
-
-The complete API documentation is available at:
-[SwaggerHub Documentation](https://varsni.portal.swaggerhub.com/data-pipeline-docs/default/data-pipeline-api-v-1-0-0#/default/get_data_pipelines_status)
-
-### Available Endpoints
-
-1. **Get All Pipelines**
-   ```
-   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines
-   ```
-   - Returns a list of all pipelines running in Prefect Cloud
-   - Response: List of pipeline objects with metadata
-
-2. **Get Pipeline Status**
-   ```
-   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines/status?id={pipeline_id}
-   ```
-   - Returns detailed status information for a specific pipeline
-   - Parameters:
-     - `id`: The unique identifier of the pipeline
-   - Response: Detailed pipeline status including run history and metrics
-
-### API Usage Example
-
-```python
-import requests
-
-# Get all pipelines
-response = requests.get('https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines')
-pipelines = response.json()
-
-# Get status of a specific pipeline
-pipeline_id = "your-pipeline-id"
-response = requests.get(f'https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines/status?id={pipeline_id}')
-status = response.json()
-```
-
-### API Response Format
-
-The APIs return JSON responses with the following structure:
-
-1. **Pipelines List Response**:
-```json
-[
-  {
-    "id": "pipeline-id",
-    "name": "Pipeline Name",
-    "created": "timestamp",
-    "updated": "timestamp",
-    "tags": [],
-    "labels": {}
-  }
-]
-```
-
-2. **Pipeline Status Response**:
-```json
-[
-  {
-    "id": "run-id",
-    "name": "Run Name",
-    "state_type": "COMPLETED|FAILED|CRASHED",
-    "created": "timestamp",
-    "start_time": "timestamp",
-    "end_time": "timestamp",
-    "total_run_time": 123.45,
-    "state": {
-      "message": "Status message",
-      "timestamp": "timestamp"
-    }
-  }
-]
-```
+- ML pipeline monitoring and analytics
 
 ## Dashboard App
 
-The project includes a Flask-based dashboard application that provides real-time monitoring of pipeline runs and their status. The dashboard offers:
+The project includes a Flask-based dashboard application that provides real-time monitoring of both data and ML pipelines. The dashboard offers:
 
 1. **Pipeline Overview**:
-   - List of all available pipelines
+   - List of all available data and ML pipelines
    - Quick status indicators
    - Creation and last update timestamps
    - Pipeline tags and labels
@@ -121,11 +43,11 @@ The project includes a Flask-based dashboard application that provides real-time
 #### Homepage
 ![Dashboard Homepage](assets/dashboard-home.png)
 
-#### Pipeline Details
-![Pipeline Details](assets/flow-details.png)
+#### Data Pipeline Details
+![Data Pipeline Details](assets/data-pipeline-details.png)
 
-#### Run History
-![Flow Run History](assets/flow-run-history.png)
+#### ML Pipeline Details
+![ML Pipeline Details](assets/ml-pipeline-details.png)
 
 ### Running the Dashboard
 
@@ -145,6 +67,147 @@ python app.py
 ```
 
 4. Access the dashboard at http://localhost:5000
+
+## Custom APIs
+
+The project includes custom REST APIs built with AWS Lambda to interact with the Prefect Cloud pipelines and SageMaker ML pipelines. These APIs provide real-time access to pipeline information and status.
+
+### API Documentation
+
+The complete API documentation is available at:
+[SwaggerHub Documentation](https://varsni.portal.swaggerhub.com/data-pipeline-docs/default/data-pipeline-api-v-1-0-0#/default/get_data_pipelines_status)
+
+### Available Endpoints
+
+1. **Get All Data Pipelines**
+   ```
+   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines
+   ```
+   - Returns a list of all data pipelines running in Prefect Cloud
+   - Response: List of pipeline objects with metadata
+
+2. **Get Data Pipeline Status**
+   ```
+   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines/status?id={pipeline_id}
+   ```
+   - Returns detailed status information for a specific data pipeline
+   - Parameters:
+     - `id`: The unique identifier of the pipeline
+   - Response: Detailed pipeline status including run history and metrics
+
+3. **Get All ML Pipelines**
+   ```
+   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline
+   ```
+   - Returns a list of all ML pipelines running in SageMaker
+   - Response: List of ML pipeline objects with metadata
+
+4. **Get ML Pipeline Status**
+   ```
+   GET https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline/status?pipeline_id={pipeline_id}
+   ```
+   - Returns detailed status information for a specific ML pipeline
+   - Parameters:
+     - `pipeline_id`: The unique identifier of the ML pipeline
+   - Response: Detailed ML pipeline execution history and metrics
+
+### API Usage Example
+
+```python
+import requests
+
+# Get all data pipelines
+response = requests.get('https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines')
+data_pipelines = response.json()
+
+# Get status of a specific data pipeline
+pipeline_id = "your-pipeline-id"
+response = requests.get(f'https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/data/pipelines/status?id={pipeline_id}')
+status = response.json()
+
+# Get all ML pipelines
+response = requests.get('https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline')
+ml_pipelines = response.json()
+
+# Get status of a specific ML pipeline
+ml_pipeline_id = "your-ml-pipeline-id"
+response = requests.get(f'https://es3ozkq7i8.execute-api.us-east-1.amazonaws.com/dev/ml/pipeline/status?pipeline_id={ml_pipeline_id}')
+ml_status = response.json()
+```
+
+### API Response Format
+
+The APIs return JSON responses with the following structure:
+
+1. **Data Pipelines List Response**:
+```json
+[
+  {
+    "id": "pipeline-id",
+    "name": "Pipeline Name",
+    "created": "timestamp",
+    "updated": "timestamp",
+    "tags": [],
+    "labels": {}
+  }
+]
+```
+
+2. **Data Pipeline Status Response**:
+```json
+[
+  {
+    "id": "run-id",
+    "name": "Run Name",
+    "state_type": "COMPLETED|FAILED|CRASHED",
+    "created": "timestamp",
+    "start_time": "timestamp",
+    "end_time": "timestamp",
+    "total_run_time": 123.45,
+    "state": {
+      "message": "Status message",
+      "timestamp": "timestamp"
+    }
+  }
+]
+```
+
+3. **ML Pipelines List Response**:
+```json
+[
+  {
+    "PipelineArn": "arn:aws:sagemaker:region:account:pipeline/pipeline-name",
+    "PipelineName": "pipeline-name",
+    "PipelineDisplayName": "Pipeline Display Name",
+    "CreationTime": "timestamp",
+    "LastModifiedTime": "timestamp",
+    "LastExecutionTime": "timestamp"
+  }
+]
+```
+
+4. **ML Pipeline Status Response**:
+```json
+{
+  "PipelineExecutionSummaries": [
+    {
+      "PipelineExecutionArn": "arn:aws:sagemaker:region:account:pipeline/pipeline-name/execution/execution-id",
+      "StartTime": "timestamp",
+      "PipelineExecutionStatus": "Succeeded|Failed|Executing",
+      "PipelineExecutionDisplayName": "Execution Name",
+      "PipelineExecutionDetails": {
+        "PipelineArn": "arn:aws:sagemaker:region:account:pipeline/pipeline-name",
+        "PipelineExecutionStatus": "Succeeded|Failed|Executing",
+        "CreationTime": "timestamp",
+        "LastModifiedTime": "timestamp",
+        "CreatedBy": {
+          "UserProfileName": "user-name"
+        }
+      }
+    }
+  ]
+}
+```
 
 ## Output Artifacts
 
@@ -248,6 +311,10 @@ To run the pipeline manually:
   - `templates/`: HTML templates for the dashboard
   - `static/`: CSS and JavaScript files
   - `requirements.txt`: Dashboard-specific dependencies
+- `lambdas/`: AWS Lambda functions for custom APIs
+  - `data/`: Data pipeline API functions
+  - `ml/`: ML pipeline API functions
+  - `docs.json`: API documentation
 - `README.md`: This file
 
 ## Data Analysis Features
