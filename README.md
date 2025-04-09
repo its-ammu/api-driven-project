@@ -12,7 +12,8 @@ This project implements a data pipeline that analyzes global energy consumption 
 - Automatically saves outputs as GitHub Actions artifacts
 - Flask-based monitoring dashboard for pipeline status
 - Custom REST APIs for pipeline monitoring
-- ML pipeline monitoring and analytics
+- ML pipeline Implementation via SageMaker
+- SageMaker pipeline monitoring and analytics
 
 ## Dashboard App
 
@@ -341,3 +342,130 @@ To run the pipeline manually:
    - Top performing countries
    - Regional comparisons
    - Links to interactive visualizations
+
+## ML Pipeline Implementation
+
+The project includes a comprehensive ML pipeline for diabetes prediction, implemented using AWS SageMaker. The pipeline follows MLOps best practices and includes the following components:
+
+### Pipeline Components
+
+1. **Data Processing**
+   - Uses the diabetes dataset from S3
+   - Splits data into training and testing sets
+   - Handles feature preprocessing and target variable renaming
+
+2. **Model Training**
+   - Implements a Random Forest Classifier using scikit-learn
+   - Configurable hyperparameters:
+     - Number of estimators
+     - Minimum samples per leaf
+     - Maximum tree depth
+   - Saves model artifacts and feature information
+
+3. **Model Evaluation**
+   - Comprehensive evaluation metrics:
+     - Accuracy
+     - Precision
+     - Recall
+     - F1 Score
+     - ROC AUC
+   - Generates evaluation reports in JSON format
+
+4. **Model Registry**
+   - Automatic model registration in SageMaker Model Registry
+   - Version control for model artifacts
+   - Automated approval workflow
+   - Model package group management
+
+5. **Model Deployment**
+   - Flexible deployment options
+   - Supports both real-time inference and batch transformations
+   - Configurable instance types and counts
+   - Automatic endpoint naming with timestamps
+
+### Pipeline Workflow
+
+1. **Data Preparation**
+   ```python
+   # Load and preprocess data
+   df = pd.read_csv("s3://s3-mlpipeline/diabetes-prediction/diabetes.csv")
+   train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+   ```
+
+2. **Training Step**
+   ```python
+   sklearn_estimator = SKLearn(
+       entry_point='train.py',
+       instance_type='ml.m5.xlarge',
+       framework_version='0.23-1',
+       hyperparameters={
+           'n_estimators': 10,
+           'min_samples_leaf': 2,
+           'max_depth': 5
+       }
+   )
+   ```
+
+3. **Evaluation Step**
+   ```python
+   evaluation_step = ProcessingStep(
+       name="ModelEvaluation",
+       processor=sklearn_processor,
+       inputs=[...],
+       outputs=[...],
+       property_files=[evaluation_report]
+   )
+   ```
+
+4. **Model Registration**
+   ```python
+   register_model_step = RegisterModel(
+       name="RegisterModelStep",
+       model_package_group_name="DiabetesModelPackageGroup",
+       approval_status="Approved"
+   )
+   ```
+
+### Deployment
+
+The pipeline includes a separate deployment function that can be used to deploy the latest approved model:
+
+```python
+def deploy_latest_approved_model(
+    model_package_group_name="DiabetesModelPackageGroup",
+    endpoint_name=None,
+    instance_type="ml.m5.large",
+    initial_instance_count=1
+):
+    # Deploy the latest approved model
+    # Returns the endpoint name
+```
+
+### Usage
+
+1. **Start the Pipeline**
+   ```python
+   execution = pipeline.start()
+   execution.wait()
+   ```
+
+2. **Deploy the Model**
+   ```python
+   endpoint_name = deploy_latest_approved_model()
+   print(f"Model deployed to endpoint: {endpoint_name}")
+   ```
+
+3. **Make Predictions**
+   ```python
+   predictor = sagemaker.predictor.Predictor(endpoint_name)
+   predictions = predictor.predict(sample_input)
+   ```
+
+### Features
+
+- **Automated Workflow**: End-to-end pipeline from data preparation to deployment
+- **Model Versioning**: Automatic version control in Model Registry
+- **Quality Gates**: Evaluation metrics and automated approval process
+- **Scalable Deployment**: Configurable instance types and counts
+- **Monitoring**: Integration with SageMaker monitoring capabilities
+- **Reproducibility**: Version-controlled code and artifacts
